@@ -1,0 +1,64 @@
+Resources:
+  Users:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Users-${self:custom.stage}
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+      # Set the capacity to auto-scale
+      BillingMode: PAY_PER_REQUEST
+  
+  FastGamePlayers:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: FastGamePlayers-${self:custom.stage}
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+      # Set the capacity to auto-scale
+      BillingMode: PAY_PER_REQUEST
+
+  GamesArchive:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: GamesArchive-${self:custom.stage}
+        AttributeDefinitions:
+          - AttributeName: gameId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: gameId
+            KeyType: HASH
+        # Set the capacity to auto-scale
+        BillingMode: PAY_PER_REQUEST
+  OpenRooms:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: OpenRooms-${self:custom.stage}
+        AttributeDefinitions:
+          - AttributeName: gameId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: gameId
+            KeyType: HASH
+        # Set the capacity to auto-scale
+        BillingMode: PAY_PER_REQUEST
+  HiddenRooms:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: HiddenRooms-${self:custom.stage}
+        AttributeDefinitions:
+          - AttributeName: gameId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: gameId
+            KeyType: HASH
+        # Set the capacity to auto-scale
+        BillingMode: PAY_PER_REQUEST
+        
