@@ -54,3 +54,4 @@ resources:
   - ${file(resources/dynamodb-tables.yml)}
   # Cognito
   - ${file(resources/cognito-user-pool.yml)}
+  - ${file(resources/cognito-identity-pool.yml)}
