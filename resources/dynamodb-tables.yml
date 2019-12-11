@@ -2,7 +2,7 @@ Resources:
   Users:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: Users-${self:custom.stage}
+      TableName: ${self:provider.environment.UsersTableName}
       AttributeDefinitions:
         - AttributeName: userId
           AttributeType: S
@@ -15,7 +15,7 @@ Resources:
   FastGamePlayers:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: FastGamePlayers-${self:custom.stage}
+      TableName: ${self:provider.environment.FastGamePlayersTableName}
       AttributeDefinitions:
         - AttributeName: userId
           AttributeType: S
@@ -28,7 +28,7 @@ Resources:
   GamesArchive:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: GamesArchive-${self:custom.stage}
+        TableName: ${self:provider.environment.GamesArchiveTableName}
         AttributeDefinitions:
           - AttributeName: gameId
             AttributeType: S
@@ -40,7 +40,7 @@ Resources:
   OpenRooms:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: OpenRooms-${self:custom.stage}
+        TableName: ${self:provider.environment.OpenRoomsTableName}
         AttributeDefinitions:
           - AttributeName: gameId
             AttributeType: S
@@ -52,7 +52,7 @@ Resources:
   HiddenRooms:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: HiddenRooms-${self:custom.stage}
+        TableName: ${self:provider.environment.HiddenRoomsTableName}
         AttributeDefinitions:
           - AttributeName: gameId
             AttributeType: S
