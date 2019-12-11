@@ -53,6 +53,18 @@ provider:
         - "Fn::GetAtt": [ OpenRooms, Arn ]
         - "Fn::GetAtt": [ HiddenRooms, Arn ]
 
+functions:
+  list-fast-game-players:
+    # Defines an HTTP API endpoint that calls the main function in list.js
+    # - path: url path is /notes
+    # - method: GET request
+    handler: list-fast-game-players.main
+    events:
+      - http:
+          path: games
+          method: get
+          cors: true
+          authorizer: aws_iam
 
 resources:
   # API Gateway Errors

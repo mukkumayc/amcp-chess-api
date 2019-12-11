@@ -12,7 +12,7 @@ Resources:
       # Set the capacity to auto-scale
       BillingMode: PAY_PER_REQUEST
   
-  FastGamePlayers:
+  QuickPairing:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: ${self:provider.environment.FastGamePlayersTableName}
