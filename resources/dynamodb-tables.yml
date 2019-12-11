@@ -15,7 +15,7 @@ Resources:
   QuickPairing:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: ${self:provider.environment.FastGamePlayersTableName}
+      TableName: ${self:provider.environment.QuickPairingTableName}
       AttributeDefinitions:
         - AttributeName: userId
           AttributeType: S

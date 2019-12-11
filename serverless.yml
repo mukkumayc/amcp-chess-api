@@ -23,7 +23,7 @@ provider:
 
   environment:
     UsersTableName: Users-${self:custom.stage}
-    FastGamePlayersTableName: FastGamePlayers-${self:custom.stage}
+    QuickPairingTableName: QuickPairing-${self:custom.stage}
     GamesArchiveTableName: GamesArchive-${self:custom.stage}
     OpenRoomsTableName: OpenRooms-${self:custom.stage}
     HiddenRoomsTableName: HiddenRooms-${self:custom.stage}
@@ -48,21 +48,32 @@ provider:
       # the specific table for the stage
       Resource:
         - "Fn::GetAtt": [ Users, Arn ]
-        - "Fn::GetAtt": [ FastGamePlayers, Arn ]
+        - "Fn::GetAtt": [ QuickPairing, Arn ]
         - "Fn::GetAtt": [ GamesArchive, Arn ]
         - "Fn::GetAtt": [ OpenRooms, Arn ]
         - "Fn::GetAtt": [ HiddenRooms, Arn ]
 
 functions:
-  list-fast-game-players:
-    # Defines an HTTP API endpoint that calls the main function in list.js
-    # - path: url path is /notes
+  list-quick-pairing:
+    # Defines an HTTP API endpoint that calls the main function in list-quick-pairing.js
+    # - path: url path is /games
     # - method: GET request
-    handler: list-fast-game-players.main
+    handler: list-quick-pairing.main
     events:
       - http:
           path: games
           method: get
+          cors: true
+          authorizer: aws_iam
+  add-quick-pairing:
+    # Defines an HTTP API endpoint that calls the main function in add-quick-pairing.js
+    # - path: url path is /games
+    # - method: POST request
+    handler: add-quick-pairing.main
+    events:
+      - http:
+          path: games
+          method: post
           cors: true
           authorizer: aws_iam
 
