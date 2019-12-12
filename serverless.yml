@@ -87,6 +87,17 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
+  create-game:
+    # Defines an HTTP API endpoint that calls the main function in add-quick-pairing.js
+    # - path: url path is /games
+    # - method: POST request
+    handler: create-game.main
+    events:
+      - http:
+          path: games
+          method: post
+          cors: true
+          authorizer: aws_iam
 
 resources:
   # API Gateway Errors
