@@ -76,6 +76,17 @@ functions:
           method: post
           cors: true
           authorizer: aws_iam
+  list-games:
+    # Defines an HTTP API endpoint that calls the main function in list-games.js
+    # - path: url path is /games
+    # - method: POST request
+    handler: list-games.main
+    events:
+      - http:
+          path: games
+          method: get
+          cors: true
+          authorizer: aws_iam
 
 resources:
   # API Gateway Errors
