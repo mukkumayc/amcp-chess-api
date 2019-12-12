@@ -56,23 +56,23 @@ provider:
 functions:
   list-quick-pairing:
     # Defines an HTTP API endpoint that calls the main function in list-quick-pairing.js
-    # - path: url path is /games
+    # - path: url path is /games/quick
     # - method: GET request
     handler: list-quick-pairing.main
     events:
       - http:
-          path: games
+          path: games/quick
           method: get
           cors: true
           authorizer: aws_iam
   add-quick-pairing:
     # Defines an HTTP API endpoint that calls the main function in add-quick-pairing.js
-    # - path: url path is /games
+    # - path: url path is /games/quick
     # - method: POST request
     handler: add-quick-pairing.main
     events:
       - http:
-          path: games
+          path: games/quick
           method: post
           cors: true
           authorizer: aws_iam
