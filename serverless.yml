@@ -108,15 +108,15 @@ functions:
     handler: websocket-chat/connect.main
     events:
       - websocket: $connect
-  on-message:
-    handler: websocket-chat/default.main
-    events:
-      - websocket: $default
-        # route: onMessage
   disconnect-chat:
     handler: websocket-chat/disconnect.main
     events:
       - websocket: $disconnect
+  on-message:
+    handler: websocket-chat/default.main
+    events:
+      - websocket:
+         route: onMessage
       
 resources:
   # API Gateway Errors
