@@ -3,21 +3,13 @@ import { success, failure } from '../libs/response-lib';
 import AWS from "aws-sdk";
 
 export async function main(event, context) {
-  // let params = {
-  //   TableName: process.env.OpenRoomsTableName,
-
-  //   Key: {
-  //     gameId: event.pathParameters.id
-  //   }
-  // };
-
   const apigwManagementApi = new AWS.ApiGatewayManagementApi({
     endpoint: event.requestContext.domainName + '/' + event.requestContext.stage
   });
 
-  const postData = JSON.parse(event.body).data;
+  const postData = JSON.parse(event.body).message;
   try {
-    await apigwManagementApi.postToConnection({ ConnectionId: event.requestContext.ConnectionId, Data: postData }).promise();
+    await apigwManagementApi.postToConnection({ ConnectionId: event.requestContext.connectionId, Data: postData }).promise();
     return success();
   }
   catch(e) {
