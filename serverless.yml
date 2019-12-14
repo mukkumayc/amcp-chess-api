@@ -104,19 +104,26 @@ functions:
           method: post
           cors: true
           authorizer: aws_iam
-  connect-chat:
-    handler: websocket-chat/connect.main
+  connect:
+    handler: websocket/connect.main
     events:
       - websocket: $connect
-  disconnect-chat:
-    handler: websocket-chat/disconnect.main
+  disconnect:
+    handler: websocket/disconnect.main
     events:
       - websocket: $disconnect
-  on-message:
-    handler: websocket-chat/default.main
+  message-chat:
+    handler: websocket/default.main
     events:
       - websocket:
-         route: onMessage
+         route: send-message
+  send-game-id:
+    handler: websocket/default.main
+    events:
+      - websocket:
+         route: send-game-id
+  
+  
       
 resources:
   # API Gateway Errors
