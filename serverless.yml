@@ -34,6 +34,8 @@ provider:
   #
   #environment:
   #  sampleEnvVar: ${env:SAMPLE_ENV_VAR}
+  iamManagedPolicies:
+    - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -44,6 +46,10 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
+        - cloudwatch:*
+        - "logs:CreateLogGroup"
+        - "logs:CreateLogStream"
+        - "logs:PutLogEvents"
       # Restrict our IAM role permissions to
       # the specific table for the stage
       Resource:
@@ -98,7 +104,20 @@ functions:
           method: post
           cors: true
           authorizer: aws_iam
-
+  connect-chat:
+    handler: connect-chat.main
+    events:
+      - websocket: $connect
+  on-message:
+    handler: on-message.main
+    events:
+      - websocket:
+        route: onMessage
+  disconnect-chat:
+    handler: disconnect-chat.main
+    events:
+      - websocket: $disconnect
+      
 resources:
   # API Gateway Errors
   # - ${file(resources/api-gateway-errors.yml)}
