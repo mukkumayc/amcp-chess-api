@@ -107,21 +107,21 @@ functions:
   connect:
     handler: websocket/connect.main
     events:
-      - websocket: $connect
+    - websocket: $connect
   disconnect:
     handler: websocket/disconnect.main
     events:
-      - websocket: $disconnect
-  message-chat:
-    handler: websocket/default.main
+    - websocket: $disconnect
+  send-gameid:
+    handler: websocket/send-gameid.main
     events:
-      - websocket:
-         route: send-message
-  send-game-id:
-    handler: websocket/default.main
+    - websocket:
+        route: send-gameid
+  send-message:
+    handler: websocket/send-message.main
     events:
-      - websocket:
-         route: send-game-id
+    - websocket:
+        route: send-message
   
   
       
