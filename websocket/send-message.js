@@ -15,7 +15,8 @@ export async function main(event, context) {
     const result = await dynamoDbLib.call("get", params);
     if (result.Item) {
       const apigwManagementApi = new AWS.ApiGatewayManagementApi({
-        endpoint: event.requestContext.domainName + '/' + event.requestContext.stage
+        apiVersion: '2018-11-29',
+        endpoint: event.requestContext.domainName + '/' + event.requestContext.stage,
       });
       try {
         await apigwManagementApi.postToConnection({
@@ -32,6 +33,10 @@ export async function main(event, context) {
         console.log("error:", e);
         return failure();
       }
+    }
+    else {
+      console.log('error:', e);
+      return failure({ status: false, error: "Item not found." });
     }
   }
   catch(e) {
