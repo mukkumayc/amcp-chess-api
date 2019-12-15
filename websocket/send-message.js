@@ -35,7 +35,6 @@ export async function main(event, context) {
       }
     }
     else {
-      console.log('error:', e);
       return failure({ status: false, error: "Item not found." });
     }
   }
