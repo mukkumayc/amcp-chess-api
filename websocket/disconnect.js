@@ -2,47 +2,47 @@ import * as dynamoDbLib from '../libs/dynamodb-lib';
 import { success, failure } from '../libs/response-lib';
 
 export async function main(event, context) {
-  let playerId = event.requestContext.identity.cognitoIdentityId;
+  console.log('event:', event);
+  let body = JSON.parse(event.body);
+  let connectionId = event.requestContext.connectionId;
   let params = {
     TableName: process.env.OpenRoomsTableName,
     Key: {
-      gameId: event.pathParameters.id
+      gameId: body.gameId,
     }
   };
   try {
     const result = await dynamoDbLib.call("get", params);
     if (result.Item) {
       let updateExpression;
-      if (!result.Item.playerId1 == playerId) {
+      if (result.Item.connectionId1 === connectionId) {
          updateExpression = "REMOVE connectionId1";
       }
-      else {
+      else if (result.Item.connectionId2 === connectionId) {
         updateExpression = "REMOVE connectionId2";
       }
       params = {
         TableName: process.env.OpenRoomsTableName,
         Key: {
-          gameId: event.pathParameters.id
+          gameId: body.gameId,
         },
         UpdateExpression: updateExpression,
-        ExpressionAttributeValues: {
-          ":connectionId": event.requestContext.connectionId,
-        },
       };
       try {
         await dynamoDbLib.call("update", params);
-        return success({status: true});
+        return success({ status: false });
       }
       catch(e) {
-        console.log(e);
-        return failure({status: false});
+        console.log('error:', e);
+        return failure({ status: false });
       }
     }
     else {
+      console.log('error:', e);
       return failure({ status: false, error: "Item not found." });
     }
   } catch (e) {
-    console.log(e);
+    console.log('error:', e);
     return failure({ status: false });
   }
 }
