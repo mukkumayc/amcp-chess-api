@@ -131,10 +131,10 @@ functions:
   getConnectionId:
     handler: websocket/get-connectionid.js
     events:
-    -websocket:
+    - websocket:
       route: getConnectionId
   sendIdentity:
-  handler: sendIdentity.main
+    handler: sendIdentity.main
     events:
     - http:
         path: games/{id}

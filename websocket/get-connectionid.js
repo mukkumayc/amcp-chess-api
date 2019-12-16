@@ -1,4 +1,5 @@
 import { success } from '../libs/response-lib';
+import AWS from "aws-sdk";
 
 export async function main(event, context) {
   const apigwManagementApi = new AWS.ApiGatewayManagementApi({
@@ -6,7 +7,7 @@ export async function main(event, context) {
     endpoint: event.requestContext.domainName + '/' + event.requestContext.stage,
   });
   await apigwManagementApi.postToConnection({
-    ConnectionId: result.Item.connectionId1,
+    ConnectionId: event.requestContext.connectionId,
     Data: JSON.stringify({
       action: "getConnectionId",
       connectionId: event.requestContext.connectionId,
