@@ -15,10 +15,10 @@ export async function main (event) {
         };
 
         try {
-            await dynamoDbLib.call("put", params);
-            return success(params.Item);
+            await dynamoDbLib.call("put", params);  
         } catch(e){
             return failure({status:false});
         }
     }
+    return success(params.Item);
 }
