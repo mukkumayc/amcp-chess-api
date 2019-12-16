@@ -27,6 +27,7 @@ provider:
     GamesArchiveTableName: GamesArchive-${self:custom.stage}
     OpenRoomsTableName: OpenRooms-${self:custom.stage}
     HiddenRoomsTableName: HiddenRooms-${self:custom.stage}
+    WebSocketConnectionsTableName: WebSocketConnections-${self:custom.stage}
   # To load environment variables externally
   # rename env.example to .env and uncomment
   # the following line. Also, make sure to not
@@ -111,7 +112,12 @@ functions:
   disconnect:
     handler: websocket/disconnect.main
     events:
-    - websocket: $disconnect
+    # - websocket: $disconnect
+    - http:
+          path: games/{id}
+          method: post
+          cors: true
+          authorizer: aws_iam
   send-gameid:
     handler: websocket/send-gameid.main
     events:

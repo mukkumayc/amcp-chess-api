@@ -4,11 +4,11 @@ import { success, failure } from '../libs/response-lib';
 export async function main(event, context) {
   console.log('event:', event);
   let body = JSON.parse(event.body);
-  let connectionId = event.requestContext.connectionId;
+  let connectionId = body.connectionId;
   let params = {
     TableName: process.env.OpenRoomsTableName,
     Key: {
-      gameId: body.gameId,
+      gameId: event.pathParameters.id,
     }
   };
   try {

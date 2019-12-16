@@ -37,6 +37,7 @@ Resources:
             KeyType: HASH
         # Set the capacity to auto-scale
         BillingMode: PAY_PER_REQUEST
+
   OpenRooms:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -49,6 +50,7 @@ Resources:
             KeyType: HASH
         # Set the capacity to auto-scale
         BillingMode: PAY_PER_REQUEST
+
   HiddenRooms:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -62,3 +64,15 @@ Resources:
         # Set the capacity to auto-scale
         BillingMode: PAY_PER_REQUEST
         
+  WebSocketConnections:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.WebSocketConnectionsTableName}
+        AttributeDefinitions:
+          - AttributeName: connectionId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: connectionId
+            KeyType: HASH
+        # Set the capacity to auto-scale
+        BillingMode: PAY_PER_REQUEST

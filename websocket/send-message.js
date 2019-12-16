@@ -21,11 +21,17 @@ export async function main(event, context) {
       try {
         await apigwManagementApi.postToConnection({
           ConnectionId: result.Item.connectionId1,
-          Data: body.message,
+          Data: JSON.stringify({
+            action: "sendMessage",
+            message: body.message,
+          }),
         }).promise();
         await apigwManagementApi.postToConnection({
           ConnectionId: result.Item.connectionId2,
-          Data: body.message,
+          Data: JSON.stringify({
+            action: "sendMessage",
+            message: body.message,
+          }),
         }).promise();
         return success();
       }
