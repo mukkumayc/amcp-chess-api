@@ -128,25 +128,21 @@ functions:
     events:
     - websocket:
         route: send-message
-  getConnectionId:
-    handler: websocket/get-connectionid.js
-    events:
-    - websocket:
-      route: getConnectionId
-  sendIdentity:
-    handler: sendIdentity.main
-    events:
-    - http:
-        path: games/{id}
-        method: post
-        cors: true
-        authorizer: aws_iam
-  
-  
+  # getConnectionId:
+  #   handler: websocket/get-connectionid.js
+  #   events:
+  #   - websocket:
+  #       route: getConnectionId
+  # sendIdentity:
+  #   handler: sendIdentity.main
+  #   events:
+  #   - http:
+  #       path: games/{id}
+  #       method: post
+  #       cors: true
+  #       authorizer: aws_iam
 
-  
-  
-      
+
 resources:
   # API Gateway Errors
   # - ${file(resources/api-gateway-errors.yml)}
