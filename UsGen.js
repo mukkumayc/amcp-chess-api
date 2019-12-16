@@ -16,8 +16,8 @@ export async function main (event) {
         };
 
         try {
-            await dynamoDbLib.call("put", params); 
-            ids[i] = params.Item.userId; 
+            await dynamoDbLib.call("put", params);
+            ids[i] = params.Item.userId;
         } catch(e){
             return failure({status:false});
         }
