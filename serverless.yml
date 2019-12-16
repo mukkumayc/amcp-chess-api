@@ -128,6 +128,11 @@ functions:
     events:
     - websocket:
         route: send-message
+  getConnectionId:
+    handler: websocket/get-connectionid.js
+    events:
+    -websocket:
+      route: getConnectionId
   
   
       
