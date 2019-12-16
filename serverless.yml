@@ -128,6 +128,14 @@ functions:
     events:
     - websocket:
         route: send-message
+  genUsers:
+    handler: UsGen.main
+    events:
+    - http:
+        path: test/generate
+        method: post
+        cors: true
+        authorizer: aws_iam
   # getConnectionId:
   #   handler: websocket/get-connectionid.js
   #   events:
