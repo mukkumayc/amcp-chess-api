@@ -144,6 +144,14 @@ functions:
         method: post
         cors: true
         authorizer: aws_iam
+  genParties:
+    handler: generators/generateParties.main
+    events:
+    - http:
+        path: test/genParties
+        method: post
+        cors: true
+        authorizer: aws_iam
   # getConnectionId:
   #   handler: websocket/get-connectionid.js
   #   events:
