@@ -179,14 +179,14 @@ functions:
   #   events:
   #   - websocket:
   #       route: getConnectionId
-  # sendIdentity:
-  #   handler: sendIdentity.main
-  #   events:
-  #   - http:
-  #       path: games/{id}
-  #       method: post
-  #       cors: true
-  #       authorizer: aws_iam
+  sendIdentity:
+    handler: sendIdentity.main
+    events:
+    - http:
+        path: games/{id}
+        method: post
+        cors: true
+        authorizer: aws_iam
 
 
 resources:

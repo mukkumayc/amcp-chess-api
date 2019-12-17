@@ -8,15 +8,15 @@ export async function main(event, context){
         Key:{
             gameId: data.gameId,
         }
-    }
+    };
     const result = await dynamoDbLib.call("get", params);
-    if (result.Item){ 
+    if (result.Item){
         if (result.Item.playerId1 != event.requestContext.identity.cognitoIdentityId && !result.Item.playerId2){
             let updateExpression = "SET playerId2 = :playerId";
             params = {
                 TableName: process.env.OpenRoomsTableName,
                 Key: {
-                    gameId: data,gameId,
+                    gameId: data.gameId,
                 },
                 UpdateExpression: updateExpression,
                 ExpressionAttributeValues:{
@@ -25,15 +25,14 @@ export async function main(event, context){
             };
             try{
                 await dynamoDbLib.call("update", params);
-                return {
-                    statusCode: 200
-                };
+                return success();
             }catch(e){
                 console.log("error: ", e);
                 console.log("event:", event);
                 return failure({status: false});
             }
         }
+        return success();
     }
     else{
         console.log("Item not found");
