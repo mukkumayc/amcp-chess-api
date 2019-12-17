@@ -20,7 +20,7 @@ export async function main(event, context) {
     return failure({text: "Cannot load users"});
   }
 
-  for (let i = 0; i < 200; ++i) {
+  for (let i = 0; i < 5; ++i) {
     let first = randomInteger(0, result.Items.length - 1);
     let second = randomInteger(0, result.Items.length - 1);
     while (second === first) {
