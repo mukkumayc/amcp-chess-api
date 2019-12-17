@@ -4,14 +4,6 @@ import { success, failure } from "./libs/response-lib";
 export async function main(event, context) {
   const params = {
     TableName: process.env.GamesArchiveTableName,
-    // ConditionalOperator: "OR",
-    // KeyConditionExpression: "user1Id = :userId or user2Id = :userId",
-    // QueryFilter: {
-    //     "user1Id": {
-    //         "ConditionalOperator": "OR",
-    //     }
-    //     "user1Id = :userId or user2Id = :userId",
-    // }
     FilterExpression: "user1Id = :userId or user2Id = :userId",
     ExpressionAttributeValues: {
       ":userId": event.requestContext.identity.cognitoIdentityId
