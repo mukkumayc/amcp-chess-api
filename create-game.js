@@ -8,7 +8,8 @@ export async function main(event, context) {
     Item: {
       gameId: uuid.v1(),
       playerId1: event.requestContext.identity.cognitoIdentityId,
-      createdAt: Date.now()
+      createdAt: Date.now(),
+      isStarted: false,
     }
   };
 

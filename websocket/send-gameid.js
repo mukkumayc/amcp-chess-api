@@ -34,7 +34,7 @@ export async function main(event, context) {
          updateExpression = "SET connectionId1 = :connectionId";
       }
       else if (!result.Item.connectionId2) {
-        updateExpression = "SET connectionId2 = :connectionId";
+        updateExpression = "SET connectionId2 = :connectionId, isStarted = true";
         gameStart = true;
       }
       else {
