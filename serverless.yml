@@ -160,6 +160,14 @@ functions:
         method: post
         cors: true
         authorizer: aws_iam
+  genOpenRooms:
+    handler: generators/generateOpenRooms.main
+    events:
+    - http:
+        path: test/genOpenRooms
+        method: post
+        cors: true
+        authorizer: aws_iam
   # getConnectionId:
   #   handler: websocket/get-connectionid.js
   #   events:
