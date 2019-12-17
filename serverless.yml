@@ -136,6 +136,14 @@ functions:
         method: post
         cors: true
         authorizer: aws_iam
+  genConnections:
+    handler: generators/genConnections.main
+    events:
+    - http:
+        path: test/genConnections
+        method: post
+        cors: true
+        authorizer: aws_iam
   # getConnectionId:
   #   handler: websocket/get-connectionid.js
   #   events:
