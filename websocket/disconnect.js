@@ -4,7 +4,7 @@ import { success, failure } from '../libs/response-lib';
 export async function main(event, context) {
   console.log('event:', event);
   let body = JSON.parse(event.body);
-  let connectionId = body.connectionId;
+  // let connectionId = body.connectionId;
   let params = {
     TableName: process.env.OpenRoomsTableName,
     Key: {
@@ -15,10 +15,12 @@ export async function main(event, context) {
     const result = await dynamoDbLib.call("get", params);
     if (result.Item) {
       let updateExpression;
-      if (result.Item.connectionId1 === connectionId) {
+      let deleteNote = false;
+      if (result.Item.playerId1 === event.requestContext.identity.cognitoIdentityId) {
          updateExpression = "REMOVE connectionId1";
+         deleteNote = true;
       }
-      else if (result.Item.connectionId2 === connectionId) {
+      else {
         updateExpression = "REMOVE connectionId2";
       }
       params = {
@@ -29,7 +31,9 @@ export async function main(event, context) {
         UpdateExpression: updateExpression,
       };
       try {
-        await dynamoDbLib.call("update", params);
+        deleteNote
+        ? await dynamoDbLib.call("delete", params)
+        : await dynamoDbLib.call("update", params);
         return success({ status: false });
       }
       catch(e) {

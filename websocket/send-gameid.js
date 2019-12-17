@@ -16,11 +16,11 @@ export async function main(event, context) {
       if (!result.Item.connectionId1) {
          updateExpression = "SET connectionId1 = :connectionId";
       }
-      else if (result.Item.connectionId1) {
+      else if (!result.Item.connectionId2) {
         updateExpression = "SET connectionId2 = :connectionId";
       }
       else {
-        console.log("Game should start");
+        console.log("Game started");
       }
       params = {
         TableName: process.env.OpenRoomsTableName,
@@ -45,6 +45,7 @@ export async function main(event, context) {
       }
     }
     else {
+      console.log("Item not found");
       return failure({ status: false, error: "Item not found." });
     }
   } catch (e) {

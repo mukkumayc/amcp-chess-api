@@ -19,20 +19,24 @@ export async function main(event, context) {
         endpoint: event.requestContext.domainName + '/' + event.requestContext.stage,
       });
       try {
-        await apigwManagementApi.postToConnection({
-          ConnectionId: result.Item.connectionId1,
-          Data: JSON.stringify({
-            action: "sendMessage",
-            message: body.message,
-          }),
-        }).promise();
-        await apigwManagementApi.postToConnection({
-          ConnectionId: result.Item.connectionId2,
-          Data: JSON.stringify({
-            action: "sendMessage",
-            message: body.message,
-          }),
-        }).promise();
+        if (result.Item.connectionId1) {
+          await apigwManagementApi.postToConnection({
+            ConnectionId: result.Item.connectionId1,
+            Data: JSON.stringify({
+              action: "sendMessage",
+              message: body.message,
+            }),
+          }).promise();
+        }
+        if (result.Item.connectionId2) {
+          await apigwManagementApi.postToConnection({
+            ConnectionId: result.Item.connectionId2,
+            Data: JSON.stringify({
+              action: "sendMessage",
+              message: body.message,
+            }),
+          }).promise();
+        }
         return success();
       }
       catch(e) {

@@ -109,15 +109,6 @@ functions:
     handler: websocket/connect.main
     events:
     - websocket: $connect
-  disconnect:
-    handler: websocket/disconnect.main
-    events:
-    # - websocket: $disconnect
-    - http:
-        path: games/{id}
-        method: delete
-        cors: true
-        authorizer: aws_iam
   send-gameid:
     handler: websocket/send-gameid.main
     events:
@@ -128,6 +119,15 @@ functions:
     events:
     - websocket:
         route: send-message
+  disconnect:
+    handler: websocket/disconnect.main
+    events:
+    # - websocket: $disconnect
+    - http:
+        path: games/{id}
+        method: delete
+        cors: true
+        authorizer: aws_iam
   genUsers:
     handler: UsGen.main
     events:
