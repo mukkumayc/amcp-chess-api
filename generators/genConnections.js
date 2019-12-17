@@ -12,19 +12,20 @@ function randomString(length) {
 
 export async function main (event) {
   let items = new Array(10);
+  let region = 'eu-central-1';
   for (let i = 0; i < 10; ++i) {
     const params = {
       TableName: process.env.WebSocketConnectionsTableName,
       Item: {
           connectionId: randomString(15) + '=',
-          gameId: uuid.v1(),
+          gameId: region + ':' + uuid.v1(),
       }
     };
     try {
       await dynamoDbLib.call("put", params);
       items[i] = params.Item;
     } catch(e) {
-      return failure({status:false});
+      return failure({status: false});
     }
   }
   return success({items});

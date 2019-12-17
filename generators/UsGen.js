@@ -3,15 +3,15 @@ import * as dynamoDbLib from "../libs/dynamodb-lib";
 import {success, failure} from "../libs/response-lib";
 
 export async function main (event) {
-    const counter = event.body;
-    var ids = [counter];
-    for (let i = 0; i<counter; i++){
+    let region = 'eu-central-1';
+    var ids = new Array(10);
+    for (let i = 0; i < 10; i++){
         const params = {
             TableName: process.env.UsersTableName,
             Item: {
-                userId: uuid.v1(),
-                Rating: Math.floor(Math.random() * 2700),
-                createdAt:Date.now()
+                userId: region + ':' + uuid.v1(),
+                rating: 0,
+                createdAt: Date.now()
             }
         };
 
