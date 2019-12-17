@@ -129,10 +129,10 @@ functions:
         cors: true
         authorizer: aws_iam
   genUsers:
-    handler: UsGen.main
+    handler: generators/UsGen.main
     events:
     - http:
-        path: test/generate
+        path: test/generateUsers
         method: post
         cors: true
         authorizer: aws_iam
