@@ -1,5 +1,21 @@
 import * as dynamoDbLib from '../libs/dynamodb-lib';
 import { failure } from '../libs/response-lib';
+import AWS from "aws-sdk";
+
+async function notifyGameStart(event, connectionId, yourMove) {
+  const apigwManagementApi = new AWS.ApiGatewayManagementApi({
+    apiVersion: '2018-11-29',
+    endpoint: event.requestContext.domainName + '/' + event.requestContext.stage,
+  });
+
+  await apigwManagementApi.postToConnection({
+    ConnectionId: connectionId,
+    Data: JSON.stringify({
+      action: "gameStarted",
+      text: yourMove ? "Your move" : "Wait for your opponent move",
+    }),
+  }).promise();
+}
 
 export async function main(event, context) {
   let gameId = JSON.parse(event.body).gameId;
@@ -11,6 +27,7 @@ export async function main(event, context) {
       }
     };
     const result = await dynamoDbLib.call("get", params);
+    let gameStart = false;
     if (result.Item) {
       let updateExpression;
       if (!result.Item.connectionId1) {
@@ -18,6 +35,7 @@ export async function main(event, context) {
       }
       else if (!result.Item.connectionId2) {
         updateExpression = "SET connectionId2 = :connectionId";
+        gameStart = true;
       }
       else {
         console.log("Game started");
@@ -42,6 +60,10 @@ export async function main(event, context) {
         console.log("error:", e);
         console.log("event:", event);
         return failure({status: false});
+      }
+      if (gameStart) {
+        notifyGameStart(event, result.Item.connectionId1, true);
+        notifyGameStart(event, event.requestContext.connectionId, false);
       }
     }
     else {
