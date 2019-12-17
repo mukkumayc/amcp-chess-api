@@ -10,7 +10,7 @@ export async function main(event, context){
         }
     }
     const result = await dynamoDbLib.call("get", params);
-    if (result.Item){ 
+    if (result.Item){
         if (result.Item.playerId1 != event.requestContext.identity.cognitoIdentityId && !result.Item.playerId2){
             let updateExpression = "SET playerId2 = :playerId";
             params = {

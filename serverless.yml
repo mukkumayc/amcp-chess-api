@@ -62,6 +62,14 @@ provider:
         - "Fn::GetAtt": [ HiddenRooms, Arn ]
 
 functions:
+  add_newly_registered_user:
+    handler: addToUsers.main
+    events:
+      - http:
+          path: /signup
+          method: post
+          cors: true
+          authorizer: aws_iam
   list-quick-pairing:
     # Defines an HTTP API endpoint that calls the main function in list-quick-pairing.js
     # - path: url path is /games/quick
