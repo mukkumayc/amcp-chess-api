@@ -3,7 +3,7 @@ import { success, failure } from '../libs/response-lib';
 import AWS from "aws-sdk";
 import Chess from 'chess.js';
 
-async function notifyMove(event, connectionId, yourMove) {
+async function notifyMove(event, connectionId, yourMove, move) {
   const apigwManagementApi = new AWS.ApiGatewayManagementApi({
     apiVersion: '2018-11-29',
     endpoint: event.requestContext.domainName + '/' + event.requestContext.stage,
@@ -14,6 +14,7 @@ async function notifyMove(event, connectionId, yourMove) {
     Data: JSON.stringify({
       action: "move",
       text: yourMove ? "Your move" : "Wait for your opponent move",
+      move: move,
     }),
   }).promise();
 }
