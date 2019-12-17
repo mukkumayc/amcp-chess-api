@@ -105,6 +105,14 @@ functions:
           method: post
           cors: true
           authorizer: aws_iam
+  list-user-parties:
+    handler: list-user-parties.main
+    events:
+      - http:
+          path: profile/parties
+          method: get
+          cors: true
+          authorizer: aws_iam
   connect:
     handler: websocket/connect.main
     events:
