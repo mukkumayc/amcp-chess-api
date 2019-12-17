@@ -1,6 +1,7 @@
 import uuid from "uuid";
 import * as dynamoDbLib from "../libs/dynamodb-lib";
 import {success, failure} from "../libs/response-lib";
+import Chess from 'chess.js';
 
 function randomInteger(min, max) {
   let rand = min - 0.5 + Math.random() * (max - min + 1);
@@ -25,6 +26,13 @@ export async function main(event, context) {
     while (second === first) {
       second = randomInteger(0, result.Items.length - 1);
     }
+    let chess = new Chess();
+
+    while (!chess.game_over()) {
+      var moves = chess.moves();
+      var move = moves[Math.floor(Math.random() * moves.length)];
+      chess.move(move);
+    }
     params = { //generate party
       TableName: process.env.GamesArchiveTableName,
       Item: {
@@ -33,6 +41,7 @@ export async function main(event, context) {
         user2Id: result.Items[second].userId,
         winner: randomInteger(1, 2),
         points: randomInteger(1, 10),
+        notation: chess.pgn(),
         createdAt: Date.now()
       }
     };
