@@ -47,7 +47,7 @@ export async function main(event, context) {
     if (result.Item) {
       let chess = new Chess();
       chess.load_pgn(result.Item.notation || '');
-      let [idCurr, idNext] = (chess.turn() == 'w' 
+      let [idCurr, idNext] = (chess.turn() == 'w'
       ? [result.Item.connectionId1, result.Item.connectionId2]
       : [result.Item.connectionId2, result.Item.connectionId1]);
 
@@ -89,7 +89,7 @@ export async function main(event, context) {
         }
         else failure({text: "Unknown gameover reason"});
 
-        
+
         if (isDraw) {
           notifyGameOver(event, idCurr, "draw", reason);
           notifyGameOver(event, idNext, "draw", reason);
@@ -116,15 +116,13 @@ export async function main(event, context) {
           Key: {
             gameId: body.gameId,
           }
-        }
+        };
         await dynamoDbLib.call("delete", params);
       }
       else {
         await notifyMove(event, idCurr, false);
         await notifyMove(event, idNext, true);
       }
-
-      
     }
     else {
       return failure({ status: false, error: "Item not found." });
@@ -135,4 +133,5 @@ export async function main(event, context) {
     return failure();
   }
 
+  return success();
 }
