@@ -130,11 +130,11 @@ functions:
     events:
     - websocket:
         route: send-gameid
-  send-message:
-    handler: websocket/send-message.main
+  propagateMessage:
+    handler: websocket/propagateMessage.main
     events:
     - websocket:
-        route: send-message
+        route: propagateMessage
   makeMove:
     handler: chess/makeMove.main
     events:
