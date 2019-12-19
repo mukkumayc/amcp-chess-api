@@ -19,8 +19,27 @@ async function notifyGameStart(event, connectionId, yourMove) {
 
 export async function main(event, context) {
   let gameId = JSON.parse(event.body).gameId;
+
+  let params = {
+    TableName: process.env.WebSocketConnectionsTableName,
+    Item: {
+      connectionId: event.requestContext.connectionId,
+      gameId: gameId,
+    }
+  };
+
   try {
-    let params = {
+    await dynamoDbLib.call("put", params);
+  }
+  catch(e) {
+    console.log("Cannot add websocket connection to WebSocketConnections");
+    console.log("error:", e);
+    console.log("event:", event);
+    return failure({status: false});
+  }
+
+  try {
+    params = {
       TableName: process.env.RoomsTableName,
       Key: {
         gameId: gameId,
