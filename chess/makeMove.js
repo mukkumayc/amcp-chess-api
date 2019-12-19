@@ -3,36 +3,101 @@ import { success, failure } from '../libs/response-lib';
 import AWS from "aws-sdk";
 import Chess from 'chess.js';
 
-async function notifyMove(event, connectionId, yourMove, move) {
-  const apigwManagementApi = new AWS.ApiGatewayManagementApi({
-    apiVersion: '2018-11-29',
-    endpoint: event.requestContext.domainName + '/' + event.requestContext.stage,
-  });
-
-  await apigwManagementApi.postToConnection({
+async function notifyMove(connectionId, whoseMove, move, api) {
+  await api.postToConnection({
     ConnectionId: connectionId,
     Data: JSON.stringify({
       action: "move",
-      text: yourMove ? "Your move" : "Wait for your opponent move",
+      text: whoseMove ? "Player 1" : "Player 2",
       move: move,
     }),
   }).promise();
 }
 
-async function notifyGameOver(event, connectionId, yourStatus, reason, move) {
+async function notifyGameOver(connectionId, playersStatus, reason, move, api) {
+  await api.postToConnection({
+    ConnectionId: connectionId,
+    Data: JSON.stringify({
+      action: "gameOver",
+      text: playersStatus + " : " + reason,
+      move: move,
+    }),
+  }).promise();
+}
+
+async function propagateMove(event, gameId, whoseMove, move) {
+  let params = {
+    TableName: process.env.WebSocketConnectionsTableName,
+    FilterExpression: "gameId = :gameId",
+    ExpressionAttributeValues: {
+      ":gameId": gameId,
+    }
+  };
+
+  let result;
+  try {
+    result = await dynamoDbLib.call("scan", params);
+  }
+  catch(e) {
+    console.log("Error while scanning WebSocketConnections");
+    return true;
+  }
+
+  console.log("results", result);
+
   const apigwManagementApi = new AWS.ApiGatewayManagementApi({
     apiVersion: '2018-11-29',
     endpoint: event.requestContext.domainName + '/' + event.requestContext.stage,
   });
 
-  await apigwManagementApi.postToConnection({
-    ConnectionId: connectionId,
-    Data: JSON.stringify({
-      action: "gameOver",
-      text: yourStatus + ":" + reason,
-      move: move,
-    }),
-  }).promise();
+  try {
+    for (let i = 0; i < result.Items.length; ++i) {
+      console.log(result.Items[i].connectionId, whoseMove, move, apigwManagementApi);
+      await notifyMove(result.Items[i].connectionId, whoseMove, move, apigwManagementApi);
+    }
+  }
+  catch(e) {
+    console.log("Error while sending message:", e);
+    return failure();
+  }
+
+  return false;
+}
+
+async function propagateGameOver(event, gameId, playersStatus, reason, move) {
+  let params = {
+    TableName: process.env.WebSocketConnectionsTableName,
+    FilterExpression: "gameId = :gameId",
+    ExpressionAttributeValues: {
+      ":gameId": gameId,
+    }
+  };
+
+  let result;
+  try {
+    result = await dynamoDbLib.call("scan", params);
+  }
+  catch(e) {
+    console.log("Error while scanning WebSocketConnections");
+    return true;
+  }
+
+  const apigwManagementApi = new AWS.ApiGatewayManagementApi({
+    apiVersion: '2018-11-29',
+    endpoint: event.requestContext.domainName + '/' + event.requestContext.stage,
+  });
+
+  try {
+    for (let i = 0; i < result.Items.length; ++i) {
+      await notifyGameOver(result.Items[i].connectionId, playersStatus, reason, move, apigwManagementApi);
+    }
+  }
+  catch(e) {
+    console.log("Error while sending message:", e);
+    return failure();
+  }
+
+  return false;
 }
 
 export async function main(event, context) {
@@ -49,9 +114,7 @@ export async function main(event, context) {
     if (result.Item) {
       let chess = new Chess();
       chess.load_pgn(result.Item.notation || '');
-      let [idCurr, idNext] = (chess.turn() == 'w'
-      ? [result.Item.connectionId1, result.Item.connectionId2]
-      : [result.Item.connectionId2, result.Item.connectionId1]);
+      let idCurr = (chess.turn() == 'w' ? result.Item.connectionId1 : result.Item.connectionId2);
 
       if (event.requestContext.connectionId != idCurr) { // check if it's our move
         return failure({text: "Not your move"});
@@ -91,14 +154,35 @@ export async function main(event, context) {
         }
         else failure({text: "Unknown gameover reason"});
 
-
+        let playersStatus;
         if (isDraw) {
-          await notifyGameOver(event, idCurr, "draw", reason, body.move);
-          await notifyGameOver(event, idNext, "draw", reason, body.move);
+          playersStatus = "draw";
         }
         else {
-          await notifyGameOver(event, idCurr, "win", reason, body.move);
-          await notifyGameOver(event, idNext, "lose", reason, body.move);
+          playersStatus =
+            idCurr == result.Item.connectionId1
+            ? "Player 1 won"
+            : "Player 2 won";
+        }
+
+        await propagateGameOver(event, body.gameId, playersStatus, reason, body.move);
+
+        if (result.Item.playerId1 != result.Item.playerId2) { // add rating
+          let winnerId =
+            idCurr == result.Item.connectionId1
+            ? result.Item.playerId1
+            : result.Item.playerId2;
+          params = {
+            TableName: process.env.UsersTableName,
+            Key: {
+              userId: winnerId,
+            },
+            UpdateExpression: "SET rating = rating + :count",
+            ExpressionAttributeValues: {
+              ":count": 5,
+            },
+          };
+          await dynamoDbLib.call("update");
         }
 
         params = {
@@ -111,7 +195,7 @@ export async function main(event, context) {
             notation: chess.pgn(),
           }
         };
-        await dynamoDbLib.call("put", params);
+        await dynamoDbLib.call("put", params); // put game in archive
 
         params = {
           TableName: process.env.RoomsTableName,
@@ -119,11 +203,39 @@ export async function main(event, context) {
             gameId: body.gameId,
           }
         };
-        await dynamoDbLib.call("delete", params);
+        await dynamoDbLib.call("delete", params); // delete room
+
+        params = {
+          TableName: process.env.WebSocketConnectionsTableName,
+          ProjectionExpression: "connectionId",
+          FilterExpression: "gameId = :gameId",
+          ExpressionAttributeValues: {
+            ":gameId": body.gameId,
+          }
+        };
+
+        let sockets;
+
+        try { // find all connections with this gameId
+          sockets = await dynamoDbLib.call("scan", params);
+        }
+        catch(e) {
+          console.log("Error while scanning WebSocketConnections");
+          return failure(e);
+        }
+
+        for (let i = 0; i < sockets.Items.length; ++i) { // delete all connections
+          params = {
+            TableName: process.env.WebSocketConnectionsTableName,
+            Key: {
+              connectionId: sockets.Items[i].connectionId,
+            }
+          };
+          await dynamoDbLib.call("delete", params);
+        }
       }
       else {
-        await notifyMove(event, idCurr, false, body.move);
-        await notifyMove(event, idNext, true, body.move);
+        await propagateMove(event, body.gameId, chess.turn() === 'w', body.move);
       }
     }
     else {
