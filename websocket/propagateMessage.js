@@ -7,50 +7,38 @@ export async function main(event, context) {
   let body = JSON.parse(event.body);
   try {
     let params = {
-      TableName: process.env.RoomsTableName,
-      Key: {
-        gameId: body.gameId,
+      TableName: process.env.WebSocketConnectionsTableName,
+      FilterExpression: "gameId = :gameId",
+      ExpressionAttributeValues: {
+        ":gameId": body.gameId,
       }
     };
-    const result = await dynamoDbLib.call("get", params);
-    if (result.Item) {
-      const apigwManagementApi = new AWS.ApiGatewayManagementApi({
-        apiVersion: '2018-11-29',
-        endpoint: event.requestContext.domainName + '/' + event.requestContext.stage,
-      });
-      try {
-        if (result.Item.connectionId1) {
-          await apigwManagementApi.postToConnection({
-            ConnectionId: result.Item.connectionId1,
-            Data: JSON.stringify({
-              action: "sendMessage",
-              message: body.message,
-            }),
-          }).promise();
-        }
-        if (result.Item.connectionId2) {
-          await apigwManagementApi.postToConnection({
-            ConnectionId: result.Item.connectionId2,
-            Data: JSON.stringify({
-              action: "sendMessage",
-              message: body.message,
-            }),
-          }).promise();
-        }
-        return success();
-      }
-      catch(e) {
-        console.log("error:", e);
-        return failure();
+    const result = await dynamoDbLib.call("scan", params);
+
+    const apigwManagementApi = new AWS.ApiGatewayManagementApi({
+      apiVersion: '2018-11-29',
+      endpoint: event.requestContext.domainName + '/' + event.requestContext.stage,
+    });
+
+    try {
+      for (let i = 0; i < result.Items.length; ++i) {
+        await apigwManagementApi.postToConnection({
+          ConnectionId: result.Items[i].connectionId,
+          Data: JSON.stringify({
+            action: "sendMessage",
+            message: body.message,
+          }),
+        }).promise();
       }
     }
-    else {
-      return failure({ status: false, error: "Item not found." });
+    catch(e) {
+      console.log("Error while sending message:", e);
+      return failure();
     }
   }
   catch(e) {
     console.log("error:", e);
     return failure();
   }
-
+  return success();
 }
