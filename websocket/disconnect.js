@@ -20,9 +20,13 @@ export async function main(event, context) {
          updateExpression = "REMOVE connectionId1, playerId1";
          deleteRoom = true;
       }
-      else {
+      else if (result.Item.playerId2 === event.requestContext.identity.cognitoIdentityId) {
         updateExpression = "REMOVE connectionId2, playerId2";
       }
+      else { // just viewer
+        return success();
+      }
+
       params = {
         TableName: process.env.RoomsTableName,
         Key: {
