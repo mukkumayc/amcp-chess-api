@@ -58,6 +58,7 @@ provider:
         - "Fn::GetAtt": [ QuickPairing, Arn ]
         - "Fn::GetAtt": [ GamesArchive, Arn ]
         - "Fn::GetAtt": [ Rooms, Arn ]
+        - "Fn::GetAtt": [ WebSocketConnections, Arn ]
 
 functions:
   add_newly_registered_user:
@@ -148,6 +149,10 @@ functions:
         method: delete
         cors: true
         authorizer: aws_iam
+  disconnect-ws:
+    handler: websocket/disconnect-ws.main
+    events:
+    - websocket: $disconnect
   genUsers:
     handler: generators/UsGen.main
     events:
