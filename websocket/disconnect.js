@@ -2,9 +2,11 @@ import * as dynamoDbLib from '../libs/dynamodb-lib';
 import { success, failure } from '../libs/response-lib';
 
 export async function main(event, context) {
+  try {
   console.log('event:', event);
   let body = JSON.parse(event.body);
   // let connectionId = body.connectionId;
+  console.log('id', event.pathParameters.id);
   let params = {
     TableName: process.env.RoomsTableName,
     Key: {
@@ -46,10 +48,15 @@ export async function main(event, context) {
       }
     }
     else {
+      console.log("Item not found.");
       return failure({ status: false, error: "Item not found." });
     }
   } catch (e) {
     console.log('error:', e);
     return failure({ status: false });
+  }
+  }
+  catch(e) {
+    console.log("unknown error", e);
   }
 }
