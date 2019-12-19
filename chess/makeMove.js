@@ -19,7 +19,7 @@ async function notifyMove(event, connectionId, yourMove, move) {
   }).promise();
 }
 
-async function notifyGameOver(event, connectionId, yourStatus, reason) {
+async function notifyGameOver(event, connectionId, yourStatus, reason, move) {
   const apigwManagementApi = new AWS.ApiGatewayManagementApi({
     apiVersion: '2018-11-29',
     endpoint: event.requestContext.domainName + '/' + event.requestContext.stage,
@@ -30,6 +30,7 @@ async function notifyGameOver(event, connectionId, yourStatus, reason) {
     Data: JSON.stringify({
       action: "gameOver",
       text: yourStatus + ":" + reason,
+      move: move,
     }),
   }).promise();
 }
@@ -92,12 +93,12 @@ export async function main(event, context) {
 
 
         if (isDraw) {
-          await notifyGameOver(event, idCurr, "draw", reason);
-          await notifyGameOver(event, idNext, "draw", reason);
+          await notifyGameOver(event, idCurr, "draw", reason, body.move);
+          await notifyGameOver(event, idNext, "draw", reason, body.move);
         }
         else {
-          await notifyGameOver(event, idCurr, "win", reason);
-          await notifyGameOver(event, idNext, "lose", reason);
+          await notifyGameOver(event, idCurr, "win", reason, body.move);
+          await notifyGameOver(event, idNext, "lose", reason, body.move);
         }
 
         params = {
