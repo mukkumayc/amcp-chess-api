@@ -33,7 +33,7 @@ export async function main(event, context) {
       second = randomInteger(0, result.Items.length - 1);
     }
     let tableName = i < 2
-    ? process.env.OpenRoomsTableName
+    ? process.env.RoomsTableName
     : process.env.HiddenRoomsTableName;
     let connectionId1 = randomString(15) + '=';
     let connectionId2 = randomString(15) + '=';

@@ -25,8 +25,7 @@ provider:
     UsersTableName: Users-${self:custom.stage}
     QuickPairingTableName: QuickPairing-${self:custom.stage}
     GamesArchiveTableName: GamesArchive-${self:custom.stage}
-    OpenRoomsTableName: OpenRooms-${self:custom.stage}
-    HiddenRoomsTableName: HiddenRooms-${self:custom.stage}
+    RoomsTableName: Rooms-${self:custom.stage}
     WebSocketConnectionsTableName: WebSocketConnections-${self:custom.stage}
     ProblemsTableName: Problems-${self:custom.stage}
   # To load environment variables externally
@@ -58,8 +57,7 @@ provider:
         - "Fn::GetAtt": [ Users, Arn ]
         - "Fn::GetAtt": [ QuickPairing, Arn ]
         - "Fn::GetAtt": [ GamesArchive, Arn ]
-        - "Fn::GetAtt": [ OpenRooms, Arn ]
-        - "Fn::GetAtt": [ HiddenRooms, Arn ]
+        - "Fn::GetAtt": [ Rooms, Arn ]
 
 functions:
   add_newly_registered_user:
@@ -174,11 +172,11 @@ functions:
         method: post
         cors: true
         authorizer: aws_iam
-  genOpenRooms:
-    handler: generators/generateOpenRooms.main
+  genRooms:
+    handler: generators/generateRooms.main
     events:
     - http:
-        path: test/genOpenRooms
+        path: test/genRooms
         method: post
         cors: true
         authorizer: aws_iam

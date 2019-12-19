@@ -6,7 +6,7 @@ export async function main(event, context) {
   let body = JSON.parse(event.body);
   // let connectionId = body.connectionId;
   let params = {
-    TableName: process.env.OpenRoomsTableName,
+    TableName: process.env.RoomsTableName,
     Key: {
       gameId: event.pathParameters.id,
     }
@@ -24,7 +24,7 @@ export async function main(event, context) {
         updateExpression = "REMOVE connectionId2, playerId2";
       }
       params = {
-        TableName: process.env.OpenRoomsTableName,
+        TableName: process.env.RoomsTableName,
         Key: {
           gameId: body.gameId,
         },

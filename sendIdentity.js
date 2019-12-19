@@ -4,7 +4,7 @@ import { success, failure } from "./libs/response-lib";
 export async function main(event, context) {
   const data = JSON.parse(event.body);
   let params = {
-    TableName: process.env.OpenRoomsTableName,
+    TableName: process.env.RoomsTableName,
     Key:{
         gameId: data.gameId,
     }
@@ -22,7 +22,7 @@ export async function main(event, context) {
       return success({text: "Room is full"});
     }
     params = {
-      TableName: process.env.OpenRoomsTableName,
+      TableName: process.env.RoomsTableName,
       Key: {
         gameId: data.gameId,
       },

@@ -39,7 +39,7 @@ export async function main(event, context) {
   console.log("event:", event);
   let body = JSON.parse(event.body);
   let params = {
-    TableName: process.env.OpenRoomsTableName,
+    TableName: process.env.RoomsTableName,
     Key: {
       gameId: body.gameId,
     }
@@ -62,7 +62,7 @@ export async function main(event, context) {
       }
 
       let params = {
-        TableName: process.env.OpenRoomsTableName,
+        TableName: process.env.RoomsTableName,
         UpdateExpression: "SET notation = :notation",
         ExpressionAttributeValues: {
           ":notation": chess.pgn(),
@@ -114,7 +114,7 @@ export async function main(event, context) {
         await dynamoDbLib.call("put", params);
 
         params = {
-          TableName: process.env.OpenRoomsTableName,
+          TableName: process.env.RoomsTableName,
           Key: {
             gameId: body.gameId,
           }

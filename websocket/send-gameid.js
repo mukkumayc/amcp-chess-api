@@ -21,7 +21,7 @@ export async function main(event, context) {
   let gameId = JSON.parse(event.body).gameId;
   try {
     let params = {
-      TableName: process.env.OpenRoomsTableName,
+      TableName: process.env.RoomsTableName,
       Key: {
         gameId: gameId,
       }
@@ -41,7 +41,7 @@ export async function main(event, context) {
         console.log("Game started");
       }
       params = {
-        TableName: process.env.OpenRoomsTableName,
+        TableName: process.env.RoomsTableName,
         Key: {
           gameId: gameId,
         },

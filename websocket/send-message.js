@@ -7,7 +7,7 @@ export async function main(event, context) {
   let body = JSON.parse(event.body);
   try {
     let params = {
-      TableName: process.env.OpenRoomsTableName,
+      TableName: process.env.RoomsTableName,
       Key: {
         gameId: body.gameId,
       }

@@ -38,23 +38,10 @@ Resources:
         # Set the capacity to auto-scale
         BillingMode: PAY_PER_REQUEST
 
-  OpenRooms:
+  Rooms:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:provider.environment.OpenRoomsTableName}
-        AttributeDefinitions:
-          - AttributeName: gameId
-            AttributeType: S
-        KeySchema:
-          - AttributeName: gameId
-            KeyType: HASH
-        # Set the capacity to auto-scale
-        BillingMode: PAY_PER_REQUEST
-
-  HiddenRooms:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:provider.environment.HiddenRoomsTableName}
+        TableName: ${self:provider.environment.RoomsTableName}
         AttributeDefinitions:
           - AttributeName: gameId
             AttributeType: S
