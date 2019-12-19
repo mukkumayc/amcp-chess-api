@@ -55,7 +55,7 @@ provider:
       # the specific table for the stage
       Resource:
         - "Fn::GetAtt": [ Users, Arn ]
-        - "Fn::GetAtt": [ QuickPairing, Arn ]
+        # - "Fn::GetAtt": [ QuickPairing, Arn ]
         - "Fn::GetAtt": [ GamesArchive, Arn ]
         - "Fn::GetAtt": [ Rooms, Arn ]
         - "Fn::GetAtt": [ WebSocketConnections, Arn ]
