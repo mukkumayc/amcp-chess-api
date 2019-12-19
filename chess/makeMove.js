@@ -108,7 +108,7 @@ export async function main(event, context) {
             user1Id: result.Item.playerId1,
             user2Id: result.Item.playerId2,
             createdAt: result.Item.createdAt,
-            notation: result.Item.notation,
+            notation: chess.pgn(),
           }
         };
         await dynamoDbLib.call("put", params);
