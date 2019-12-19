@@ -92,17 +92,17 @@ export async function main(event, context) {
 
 
         if (isDraw) {
-          notifyGameOver(event, idCurr, "draw", reason);
-          notifyGameOver(event, idNext, "draw", reason);
+          await notifyGameOver(event, idCurr, "draw", reason);
+          await notifyGameOver(event, idNext, "draw", reason);
         }
         else {
-          notifyGameOver(event, idCurr, "win", reason);
-          notifyGameOver(event, idNext, "lose", reason);
+          await notifyGameOver(event, idCurr, "win", reason);
+          await notifyGameOver(event, idNext, "lose", reason);
         }
 
         params = {
           TableName: process.env.GamesArchiveTableName,
-          Key: {
+          Item: {
             gameId: body.gameId,
             user1Id: result.Item.playerId1,
             user2Id: result.Item.playerId2,
