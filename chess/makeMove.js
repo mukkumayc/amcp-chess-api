@@ -121,8 +121,8 @@ export async function main(event, context) {
         await dynamoDbLib.call("delete", params);
       }
       else {
-        await notifyMove(event, idCurr, false);
-        await notifyMove(event, idNext, true);
+        await notifyMove(event, idCurr, false, body.move);
+        await notifyMove(event, idNext, true, body.move);
       }
     }
     else {
