@@ -1,5 +1,5 @@
 import * as dynamoDbLib from '../libs/dynamodb-lib';
-import { failure } from '../libs/response-lib';
+import { failure, success } from '../libs/response-lib';
 import AWS from "aws-sdk";
 
 async function notifyGameStart(event, connectionId, yourMove) {
@@ -31,10 +31,10 @@ export async function main(event, context) {
     if (result.Item) {
       let updateExpression;
       if (!result.Item.connectionId1) {
-         updateExpression = "SET connectionId1 = :connectionId";
+         updateExpression = "SET connectionId1 = :connectionId, isStarted = :flag";
       }
       else if (!result.Item.connectionId2) {
-        updateExpression = "SET connectionId2 = :connectionId, isStarted = true";
+        updateExpression = "SET connectionId2 = :connectionId, isStarted = :flag";
         gameStart = true;
       }
       else {
@@ -48,22 +48,21 @@ export async function main(event, context) {
         UpdateExpression: updateExpression,
         ExpressionAttributeValues: {
           ":connectionId": event.requestContext.connectionId,
+          ":flag": gameStart,
         },
       };
       try {
         await dynamoDbLib.call("update", params);
-        return {
-          statusCode: 200
-        };
       }
       catch(e) {
         console.log("error:", e);
         console.log("event:", event);
         return failure({status: false});
       }
+
       if (gameStart) {
-        notifyGameStart(event, result.Item.connectionId1, true);
-        notifyGameStart(event, event.requestContext.connectionId, false);
+        await notifyGameStart(event, result.Item.connectionId1, true);
+        await notifyGameStart(event, event.requestContext.connectionId, false);
       }
     }
     else {
@@ -75,4 +74,6 @@ export async function main(event, context) {
     console.log("event:", event);
     return failure(e);
   }
+
+  return success();
 }
