@@ -6,7 +6,7 @@ export async function main(event, context) {
   const data = JSON.parse(event.body);
   let isHidden;
   switch (data.roomType) {
-    case "open": 
+    case "open":
       isHidden = false;
       break;
     case "hidden":
