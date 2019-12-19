@@ -15,13 +15,13 @@ export async function main(event, context) {
     const result = await dynamoDbLib.call("get", params);
     if (result.Item) {
       let updateExpression;
-      let deleteNote = false;
+      let deleteRoom = false;
       if (result.Item.playerId1 === event.requestContext.identity.cognitoIdentityId) {
-         updateExpression = "REMOVE connectionId1";
-         deleteNote = true;
+         updateExpression = "REMOVE connectionId1, playerId1";
+         deleteRoom = true;
       }
       else {
-        updateExpression = "REMOVE connectionId2";
+        updateExpression = "REMOVE connectionId2, playerId2";
       }
       params = {
         TableName: process.env.OpenRoomsTableName,
@@ -31,7 +31,7 @@ export async function main(event, context) {
         UpdateExpression: updateExpression,
       };
       try {
-        deleteNote
+        deleteRoom
         ? await dynamoDbLib.call("delete", params)
         : await dynamoDbLib.call("update", params);
         return success({ status: false });
