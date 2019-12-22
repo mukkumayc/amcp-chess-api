@@ -68,5 +68,8 @@ export async function main(problemId, move){
         }else{
             return userFailure({text: "NonExisting problem"});
         }
+    }catch(e) {
+        console.log("error ", e);
+        return failure(e);
     }
 }
