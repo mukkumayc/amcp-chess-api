@@ -28,6 +28,7 @@ provider:
     RoomsTableName: Rooms-${self:custom.stage}
     WebSocketConnectionsTableName: WebSocketConnections-${self:custom.stage}
     ProblemsTableName: Problems-${self:custom.stage}
+    SolvedProblemsTableName: SolvedProblems-${self:custom.stage}
   # To load environment variables externally
   # rename env.example to .env and uncomment
   # the following line. Also, make sure to not
@@ -55,10 +56,13 @@ provider:
       # the specific table for the stage
       Resource:
         - "Fn::GetAtt": [ Users, Arn ]
-        # - "Fn::GetAtt": [ QuickPairing, Arn ]
         - "Fn::GetAtt": [ GamesArchive, Arn ]
         - "Fn::GetAtt": [ Rooms, Arn ]
         - "Fn::GetAtt": [ WebSocketConnections, Arn ]
+        - "Fn::GetAtt": [ Problems, Arn ]
+        - "Fn::GetAtt": [ SolvedProblems, Arn ]
+
+
 
 functions:
   add_newly_registered_user:
