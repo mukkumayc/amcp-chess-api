@@ -202,6 +202,14 @@ functions:
         method: post
         cors: true
         authorizer: aws_iam
+  createProblemRoom:
+    handler: createProblemRoom.main
+    events:
+    - http:
+        path: problems/create
+        method: post
+        cors: true
+        authorizer: aws_iam
 
 
 resources:
