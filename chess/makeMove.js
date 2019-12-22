@@ -1,7 +1,28 @@
 import * as dynamoDbLib from '../libs/dynamodb-lib';
-import { success, failure } from '../libs/response-lib';
+import { success, failure, userFailure } from '../libs/response-lib';
 import AWS from "aws-sdk";
 import Chess from 'chess.js';
+
+async function getRoomConnections(gameId) {
+  let params = {
+    TableName: process.env.WebSocketConnectionsTableName,
+    ProjectionExpression: "connectionId",
+    FilterExpression: "gameId = :gameId",
+    ExpressionAttributeValues: {
+      ":gameId": gameId,
+    }
+  };
+
+  let result;
+  try {
+    result = await dynamoDbLib.call("scan", params);
+  }
+  catch(e) {
+    console.log("Error while scanning WebSocketConnections");
+    throw {text: "Error while scanning WebSocketConnections", error: e};
+  }
+  return result;
+}
 
 async function notifyMove(connectionId, whoseMove, move, api) {
   await api.postToConnection({
@@ -26,24 +47,7 @@ async function notifyGameOver(connectionId, playersStatus, reason, move, api) {
 }
 
 async function propagateMove(event, gameId, whoseMove, move) {
-  let params = {
-    TableName: process.env.WebSocketConnectionsTableName,
-    FilterExpression: "gameId = :gameId",
-    ExpressionAttributeValues: {
-      ":gameId": gameId,
-    }
-  };
-
-  let result;
-  try {
-    result = await dynamoDbLib.call("scan", params);
-  }
-  catch(e) {
-    console.log("Error while scanning WebSocketConnections");
-    return true;
-  }
-
-  console.log("results", result);
+  const connections = await getRoomConnections(gameId);
 
   const apigwManagementApi = new AWS.ApiGatewayManagementApi({
     apiVersion: '2018-11-29',
@@ -51,36 +55,18 @@ async function propagateMove(event, gameId, whoseMove, move) {
   });
 
   try {
-    for (let i = 0; i < result.Items.length; ++i) {
-      console.log(result.Items[i].connectionId, whoseMove, move, apigwManagementApi);
-      await notifyMove(result.Items[i].connectionId, whoseMove, move, apigwManagementApi);
+    for (let i = 0; i < connections.Items.length; ++i) {
+      await notifyMove(connections.Items[i].connectionId, whoseMove, move, apigwManagementApi);
     }
   }
   catch(e) {
     console.log("Error while sending message:", e);
-    return failure();
+    throw {text: "Error while sending message:", error: e};
   }
-
-  return false;
 }
 
 async function propagateGameOver(event, gameId, playersStatus, reason, move) {
-  let params = {
-    TableName: process.env.WebSocketConnectionsTableName,
-    FilterExpression: "gameId = :gameId",
-    ExpressionAttributeValues: {
-      ":gameId": gameId,
-    }
-  };
-
-  let result;
-  try {
-    result = await dynamoDbLib.call("scan", params);
-  }
-  catch(e) {
-    console.log("Error while scanning WebSocketConnections");
-    return true;
-  }
+  const connections = await getRoomConnections(gameId);
 
   const apigwManagementApi = new AWS.ApiGatewayManagementApi({
     apiVersion: '2018-11-29',
@@ -88,16 +74,14 @@ async function propagateGameOver(event, gameId, playersStatus, reason, move) {
   });
 
   try {
-    for (let i = 0; i < result.Items.length; ++i) {
-      await notifyGameOver(result.Items[i].connectionId, playersStatus, reason, move, apigwManagementApi);
+    for (let i = 0; i < connections.Items.length; ++i) {
+      await notifyGameOver(connections.Items[i].connectionId, playersStatus, reason, move, apigwManagementApi);
     }
   }
   catch(e) {
     console.log("Error while sending message:", e);
-    return failure();
+    throw {text: "Error while sending message:", error: e};
   }
-
-  return false;
 }
 
 export async function main(event, context) {
@@ -117,11 +101,11 @@ export async function main(event, context) {
       let idCurr = (chess.turn() == 'w' ? result.Item.connectionId1 : result.Item.connectionId2);
 
       if (event.requestContext.connectionId != idCurr) { // check if it's our move
-        return failure({text: "Not your move"});
+        return userFailure({text: "Not your move"});
       }
 
       if (!chess.move(body.move, {sloppy: true})) { // trying to make move
-        return failure({text: "Impossible move"});
+        return userFailure({text: "Impossible move"});
       }
 
       let params = {
@@ -205,30 +189,20 @@ export async function main(event, context) {
         };
         await dynamoDbLib.call("delete", params); // delete room
 
-        params = {
-          TableName: process.env.WebSocketConnectionsTableName,
-          ProjectionExpression: "connectionId",
-          FilterExpression: "gameId = :gameId",
-          ExpressionAttributeValues: {
-            ":gameId": body.gameId,
-          }
-        };
-
-        let sockets;
-
+        let connections;
         try { // find all connections with this gameId
-          sockets = await dynamoDbLib.call("scan", params);
+          connections = getRoomConnections(body.gameId);
         }
         catch(e) {
           console.log("Error while scanning WebSocketConnections");
           return failure(e);
         }
 
-        for (let i = 0; i < sockets.Items.length; ++i) { // delete all connections
+        for (let i = 0; i < connections.Items.length; ++i) { // delete all connections
           params = {
             TableName: process.env.WebSocketConnectionsTableName,
             Key: {
-              connectionId: sockets.Items[i].connectionId,
+              connectionId: connections.Items[i].connectionId,
             }
           };
           await dynamoDbLib.call("delete", params);
@@ -244,7 +218,7 @@ export async function main(event, context) {
   }
   catch(e) {
     console.log("error:", e);
-    return failure();
+    return failure(e);
   }
 
   return success();
