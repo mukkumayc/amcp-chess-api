@@ -210,6 +210,14 @@ functions:
         method: post
         cors: true
         authorizer: aws_iam
+  listProblems:
+    handler: listProblems.main
+    events:
+    - http:
+        path: problems
+        method: get
+        cors: true
+        authorizer: aws_iam
 
 
 resources:
