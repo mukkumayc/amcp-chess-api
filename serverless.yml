@@ -144,6 +144,8 @@ functions:
     events:
     - websocket:
         route: makeMove
+  problem_check:
+    handler: chess/problem_check.main
   disconnect:
     handler: websocket/disconnect.main
     events:
