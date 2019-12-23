@@ -1,75 +1,93 @@
 import * as dynamoDbLib from '../libs/dynamodb-lib';
 import { success, failure, userFailure } from '../libs/response-lib';
-import AWS from "aws-sdk";
 import Chess from 'chess.js';
 
-async function updateCounter(count, problemId){
+async function updateState(movesCounter, fen, gameId) {
     let params = {
-        TableName: process.env.ProblemsTableName,
+        TableName: process.env.RoomsTableName,
         Key: {
-            problemId: problemId,
+            gameId: gameId,
         },
-        UpdateExpression: "SET counter = :count",
-        ExpressionAttributeValues :{
-            ":count" : count,
+        UpdateExpression: "SET movesCounter = :movesCounter, notation = :notation",
+        ExpressionAttributeValues: {
+            ":movesCounter": movesCounter,
+            ":notation": fen,
         },
     };
     await dynamoDbLib.call("update", params);
 }
 
-async function updateCurPosition(fen, problemId){
-    let params = {
-        TableName: process.env.ProblemsTableName,
-        Key: {
-            problemId: problemId,
-        },
-        UpdateExpression: "SET currentPosition = :current",
-        ExpressionAttributeValues :{
-            ":current" : fen,
-        },
-    };
-    await dynamoDbLib.call("update", params);
+function movesAreEqual(move1, move2) {
+    return move1 == move2;
 }
 
-export async function main(problemId, move){
+export async function main(event, context) {
+    let body = JSON.parse(event.body);
     let params = {
-        TableName: process.env.ProblemsTableName,
+        TableName: process.env.RoomsTableName,
         Key: {
-            problemId: problemId,
+            gameId: body.gameId,
         }
     };
-    try{
-        const result = await dynamoDbLib.call("get", params);
-        if (result.Item) {
-            let chess = new Chess(result.Item.curPosition || result.Item.Position);
-            let counter = result.Item.counter;
-            if (counter < result.Item.solution.length){
-                if (move != result.Item.solution[counter]){
-                    return userFailure({text: "Incorrect move"});
-                }
-                chess.move(solution[counter]);
-                let answer = '';
-                let pos = '';
-                if (counter < (result.Item.solution.length - 1)){
-                    chess.move(reaction[counter]);
-                    answer = reaction[counter];
-                    counter ++;
-                    pos = chess.fen();
-                }else{
-                    counter = 0;
-                    answer = "You solved it";
-                    pos = result.Item.position;
-                }
-                await updateCounter(counter, problemId);
-                await updateCurPosition(pos, problemId);
-                return answer;
+    let result;
+    try {
+        result = await dynamoDbLib.call("get", params);
+    }
+    catch(e) {
+        return failure({text: "Cannot get room", params: params, error: e});
+    }
+
+    if (result.Item) {
+        let chess = new Chess(result.Item.notation);
+        let movesCounter = result.Item.movesCounter;
+        if (movesCounter < result.Item.solution.length) {
+            if (!movesAreEqual(body.move, result.Item.solution[movesCounter])) {
+                return userFailure({
+                    status: "wrong",
+                });
             }
-            return "Position has been solved";
-        }else{
-            return userFailure({text: "NonExisting problem"});
+            chess.move(result.Item.solution[movesCounter]);
+            if (movesCounter < result.Item.reaction.length) {
+                chess.move(result.Item.reaction[movesCounter]);
+                let move = result.Item.reaction[movesCounter];
+                ++movesCounter;
+                await updateState(movesCounter, chess.fen(), body.gameId);
+                return success({
+                    status: "right",
+                    reaction: move,
+                });
+            }
+
+            // player solved this problem,
+            // we should add him in SolvedProblems table
+
+            params = {
+                TableName: process.env.SolvedProblemsTableName,
+                Item: {
+                    userId: result.Item.playerId,
+                    problemId: result.Item.problemId,
+                }
+            };
+
+            await dynamoDbLib.call("put", params);
+
+            //and delete room
+            params = {
+                TableName: process.env.RoomsTableName,
+                Key: {
+                  gameId: body.gameId,
+                }
+            };
+
+            await dynamoDbLib.call("delete", params);
+
+            return success({
+                status: "solved",
+            });
         }
-    }catch(e) {
-        console.log("error ", e);
-        return failure(e);
+        return userFailure({text: "Position has been solved"});
+    }
+    else {
+        return userFailure({text: "The room doesn't exist"});
     }
 }

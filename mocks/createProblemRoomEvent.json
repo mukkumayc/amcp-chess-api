@@ -1,8 +1,8 @@
 {
   "requestContext": {
     "identity": {
-      "cognitoIdentityId": "USER-SUB-1234"
+      "cognitoIdentityId": "user1234"
     }
   },
-  "body": "{ \"problemId\": \"12345\" }"
+  "body": "{\"problemId\": \"1286d9a0-2545-11ea-9b9b-0b7f9f4e253e\"}"
 }

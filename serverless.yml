@@ -220,6 +220,23 @@ functions:
         method: get
         cors: true
         authorizer: aws_iam
+  addProblem:
+    handler: addProblem.main
+    events:
+    - http:
+        path: problems
+        method: post
+        cors: true
+        authorizer: aws_iam
+  checkProblem:
+    handler: chess/problem_check.main
+    events:
+    - http:
+        path: problems/:id
+        method: post
+        cors: true
+        authorizer: aws_iam
+
 
 
 resources:
