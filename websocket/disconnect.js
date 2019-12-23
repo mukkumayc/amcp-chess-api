@@ -49,7 +49,7 @@ export async function main(event, context) {
     }
     else {
       console.log("Item not found.");
-      return failure({ status: false, error: "Item not found." });
+      return success({ status: true, text: "Item not found. The room has been already deleted" });
     }
   } catch (e) {
     console.log('error:', e);
