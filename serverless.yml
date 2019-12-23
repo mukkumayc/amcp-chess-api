@@ -232,7 +232,7 @@ functions:
     handler: chess/problem_check.main
     events:
     - http:
-        path: problems/:id
+        path: problems/{id}
         method: post
         cors: true
         authorizer: aws_iam
