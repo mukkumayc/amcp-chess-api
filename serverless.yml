@@ -65,6 +65,22 @@ provider:
 
 
 functions:
+  WhiteWins:
+    handler: WhiteWins.main
+    events:
+      - http:
+          path: profile/whitestat
+          method: get
+          cors: true
+          authorizer: aws_iam
+  blackWins:
+    handler: blackWins.main
+    events:
+      - http:
+          path: profile/blackstat
+          method: get
+          cors: true
+          authorizer: aws_iam
   add_newly_registered_user:
     handler: addToUsers.main
     events:
