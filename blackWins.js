@@ -20,7 +20,7 @@ export async function main(event, context) {
     try {
         const Wins = await dynamoDbLib.call("scan", params1);
         const All = await dynamoDbLib.call("scan", params2);
-        return parseFloat(success(Wins.Items.length/All.Items.length).body);
+        return success(Wins.Items.length/All.Items.length);
     }catch (e) {
         console.log(e);
         return failure({ status: false });
