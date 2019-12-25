@@ -176,6 +176,7 @@ export async function main(event, context) {
             user1Id: result.Item.playerId1,
             user2Id: result.Item.playerId2,
             createdAt: result.Item.createdAt,
+            winner: idCurr == result.Item.connectionId1 ? 1 : 2,
             notation: chess.pgn(),
           }
         };

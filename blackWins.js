@@ -8,7 +8,7 @@ export async function main(event, context) {
         ExpressionAttributeValues: {
             ":userId": event.requestContext.identity.cognitoIdentityId,
             ":result": 2,
-        },  
+        },
     };
     const params2 = {
         TableName: process.env.GamesArchiveTableName,
@@ -16,7 +16,7 @@ export async function main(event, context) {
         ExpressionAttributeValues: {
             ":userId": event.requestContext.identity.cognitoIdentityId,
         },
-    }
+    };
     try {
         const Wins = await dynamoDbLib.call("scan", params1);
         const All = await dynamoDbLib.call("scan", params2);
