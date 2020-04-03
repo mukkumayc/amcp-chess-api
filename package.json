@@ -13,14 +13,14 @@
     "url": "https://github.com/AnomalyInnovations/serverless-nodejs-starter.git"
   },
   "devDependencies": {
-    "aws-sdk": "^2.585.0",
-    "serverless-bundle": "^1.2.5",
-    "serverless-dotenv-plugin": "^2.1.1",
+    "aws-sdk": "^2.652.0",
+    "serverless-bundle": "^1.3.3",
+    "serverless-dotenv-plugin": "^2.3.2",
     "serverless-offline": "^5.12.1"
   },
   "dependencies": {
-    "chess.js": "^0.10.2",
-    "serialize-javascript": "^2.1.1",
-    "uuid": "^3.3.3"
+    "chess.js": "^0.10.3",
+    "serialize-javascript": "^2.1.2",
+    "uuid": "^3.4.0"
   }
 }
